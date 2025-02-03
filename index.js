@@ -13,14 +13,14 @@ app.get("/api/classify-number", async (req, res) => {
 	try {
 		const number = req.query.number;
 
-		const num = parseInt(number);
-
-		if (isNaN(num)) {
+		if (isNaN(number) || !Number.isInteger(parseFloat(number))) {
 			return res.status(400).json({
 				number: number,
 				error: true,
 			});
 		}
+
+		const num = parseInt(number);
 
 		const properties = [];
 
@@ -28,25 +28,20 @@ app.get("/api/classify-number", async (req, res) => {
 		const isPerfectNum = isPerfectNumber(num);
 		const digitSum = sumDigits(num);
 
-		const armstrong = checkArmstrongNumber(num);
-		if (armstrong) {
+		if (checkArmstrongNumber(num)) {
 			properties.push("armstrong");
 		}
 
-		const even = isEven(num);
-		if (even) {
+		if (isEven(num)) {
 			properties.push("even");
 		}
 
-		const odd = isOdd(num);
-		if (odd) {
+		if (isOdd(num)) {
 			properties.push("odd");
 		}
 
+		// Fetch fun fact from Numbers API
 		const response = await axios.get(`http://numbersapi.com/${num}/math`);
-
-		const result = response.data;
-		// console.log(result);
 
 		return res.status(200).json({
 			number: num,
@@ -54,12 +49,18 @@ app.get("/api/classify-number", async (req, res) => {
 			is_perfect: isPerfectNum,
 			properties: properties,
 			digit_sum: digitSum,
-			fun_fact: result,
+			fun_fact: response.data,
 		});
 	} catch (error) {
-		console.error("Failed to make request");
+		console.error("Failed to make request:", error.message);
+
+		return res.status(500).json({
+			error: true,
+			message: "Internal Server Error",
+		});
 	}
 });
+
 
 app.listen(port, () => {
 	console.log(`listening on port ${port}`);
