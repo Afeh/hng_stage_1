@@ -98,7 +98,7 @@ function checkPerfectNumber(n) {
 }
 
 function checkArmstrongNumber(n) {
-	const numStr =  n.toString();
+	const numStr =  Math.abs(n).toString();
 	const numDigits = numStr.length;
 
 	let sum = 0;
@@ -107,7 +107,7 @@ function checkArmstrongNumber(n) {
 		sum += Math.pow(parseInt(digit), numDigits);
 	}
 
-	return sum === n;
+	return sum === Math.abs(n);
 }
 
 function sumDigits(number) {
